@@ -18,7 +18,7 @@ class SearchHistoryService {
   // Get all search history entries
   Future<List<SearchHistory>> getAll() async {
     final db = await AppDatabase.instance;
-    final result = await db.query(tableName, orderBy: 'id DESC');
+    final result = await db.query(tableName, orderBy: 'createdDate DESC');
     return result.map((map) => SearchHistory.fromMap(map)).toList();
   }
 

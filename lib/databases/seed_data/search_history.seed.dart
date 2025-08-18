@@ -43,7 +43,7 @@ class SearchHistorySeedData {
     for (final keyword in keywords) {
       await db.insert(
         SearchHistoryService.tableName,
-        {'keyword': keyword},
+        {'keyword': keyword, 'createdDate': DateTime.now().toIso8601String()},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     }
@@ -52,7 +52,9 @@ class SearchHistorySeedData {
   static Future<void> seedIfEmpty() async {
     final db = await AppDatabase.instance;
     final count = Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM ${SearchHistoryService.tableName}')
+      await db.rawQuery(
+        'SELECT COUNT(*) FROM ${SearchHistoryService.tableName}',
+      ),
     );
 
     if (count == 0) {
@@ -60,4 +62,3 @@ class SearchHistorySeedData {
     }
   }
 }
-

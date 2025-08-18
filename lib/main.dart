@@ -1,20 +1,19 @@
 import 'package:elevarm_ui/elevarm_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:medicinal_plants/widgets/result.dart';
-import 'package:medicinal_plants/widgets/scanner.dart';
 import 'package:medicinal_plants/widgets/search.dart';
 
 import 'databases/app_database.dart';
 import 'databases/seed_data/search_history.seed.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  AppDatabase.instance;
-  SearchHistorySeedData.seedIfEmpty();
+  final db = await AppDatabase.instance;
+  await SearchHistorySeedData.seedIfEmpty();
 
   ElevarmFontFamilies.init();
+  final inter = ElevarmFontFamilies.inter();
 
   runApp(const MyApp());
 }

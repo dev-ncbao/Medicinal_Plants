@@ -5,7 +5,8 @@ class MigrationV1 {
     await db.execute('''
       CREATE TABLE search_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        keyword TEXT NOT NULL
+        keyword TEXT NOT NULL,
+        createdDate TEXT NOT NULL
       )
     ''');
   }
