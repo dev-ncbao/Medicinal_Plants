@@ -16,6 +16,7 @@ class Search extends StatefulWidget {
 class _Search extends State<Search> {
   final _searchHistoryService = SearchHistoryService();
 
+  final TextEditingController _searchInputController = TextEditingController();
   final List<SearchHistory> _searchHistories = [];
 
   @override
@@ -29,6 +30,12 @@ class _Search extends State<Search> {
     }.call();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchInputController.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,9 +65,63 @@ class _Search extends State<Search> {
               child: ElevarmTextInputField(
                 prefixIconAssetName: HugeIcons.strokeRoundedSearch01,
                 hintText: 'Bách bộ, Bạc hà, Bạch đồng nữ, ...',
-                onTapSuffix: null,
+                suffixIconAssetName: _searchInputController.text.isNotEmpty
+                    ? HugeIcons.strokeRoundedCancel01
+                    : null,
+                controller: _searchInputController,
+                onTapSuffix: _searchInputController.text.isNotEmpty
+                    ? () {
+                        setState(() {
+                          _searchInputController.clear();
+                        });
+                      }
+                    : null,
                 errorText: null,
                 enabled: true,
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
+            ),
+            SizedBox(height: 12),
+            WidgetPadding(
+              child: SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevarmPrimaryButton.icon(
+                  height: 48,
+                  text: 'Tìm kiếm',
+                  leadingIconAssetName: HugeIcons.strokeRoundedSearch01,
+                  trailingIconAssetName: null,
+                  onPressed: _searchInputController.text.isNotEmpty
+                      ? () {
+                          () async {
+                            final result = await _searchHistoryService.insert(
+                              SearchHistory(
+                                keyword: _searchInputController.text,
+                                createdDate: DateTime.now(),
+                              ),
+                            );
+
+                            if (result != 0) {
+                              final insertedSearchHistory =
+                                  await _searchHistoryService.search(
+                                    _searchInputController.text,
+                                  );
+
+                              if (insertedSearchHistory.isNotEmpty) {
+                                setState(() {
+                                  _searchHistories.insert(
+                                    0,
+                                    insertedSearchHistory.elementAt(0),
+                                  );
+                                });
+                              }
+                            }
+                          }.call();
+                        }
+                      : null,
+                ),
               ),
             ),
             _searchHistoriesWidget(context),
@@ -96,58 +157,78 @@ class _Search extends State<Search> {
                       child: ListView.separated(
                         physics: BouncingScrollPhysics(),
                         itemBuilder: (BuildContext context, int index) =>
-                            ElevarmOutlinedCard(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            _searchHistories[index].keyword,
-                                            textAlign: TextAlign.left,
-                                            style: ElevarmFontFamilies.inter(
-                                              fontSize: ElevarmFontSizes.md,
-                                              fontWeight:
-                                                  ElevarmFontWeights.bold,
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _searchInputController.text =
+                                      _searchHistories[index].keyword;
+                                });
+                              },
+                              child: ElevarmOutlinedCard(
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _searchHistories[index].keyword,
+                                              textAlign: TextAlign.left,
+                                              style: ElevarmFontFamilies.inter(
+                                                fontSize: ElevarmFontSizes.md,
+                                                fontWeight:
+                                                    ElevarmFontWeights.bold,
+                                              ),
                                             ),
+                                            SizedBox(height: 8),
+                                            Text(
+                                              _searchHistories[index]
+                                                  .createdDate
+                                                  .toString(),
+                                              textAlign: TextAlign.left,
+                                              style: ElevarmFontFamilies.inter(
+                                                fontSize: ElevarmFontSizes.sm,
+                                                fontWeight:
+                                                    ElevarmFontWeights.regular,
+                                                color: ElevarmColors.neutral300,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        SizedBox(
+                                          height: 40,
+                                          width: 40,
+                                          child: ElevarmLinkNeutralButton.iconOnly(
+                                            iconAssetName:
+                                                HugeIcons.strokeRoundedCancel01,
+                                            onPressed: () {
+                                              () async {
+                                                final result =
+                                                    await _searchHistoryService
+                                                        .delete(
+                                                          _searchHistories[index]
+                                                                  .id ??
+                                                              0,
+                                                        );
+
+                                                if (result != 0) {
+                                                  setState(() {
+                                                    _searchHistories.removeAt(
+                                                      index,
+                                                    );
+                                                  });
+                                                }
+                                              }.call();
+                                            },
                                           ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            _searchHistories[index].createdDate
-                                                .toString(),
-                                            textAlign: TextAlign.left,
-                                            style: ElevarmFontFamilies.inter(
-                                              fontSize: ElevarmFontSizes.sm,
-                                              fontWeight:
-                                                  ElevarmFontWeights.regular,
-                                              color: ElevarmColors.neutral300,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      SizedBox(
-                                        height: 40,
-                                        width: 40,
-                                        child:
-                                            ElevarmLinkNeutralButton.iconOnly(
-                                              iconAssetName: HugeIcons
-                                                  .strokeRoundedCancel01,
-                                              onPressed: () {
-                                                setState(() {
-                                                  _searchHistories.removeAt(
-                                                    index,
-                                                  );
-                                                });
-                                              },
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                         separatorBuilder: (BuildContext context, int index) =>

@@ -7,7 +7,11 @@ class SearchHistory {
 
   // Convert to Map for databases operations
   Map<String, dynamic> toMap() {
-    return {'id': id, 'keyword': keyword, 'createdDate': createdDate};
+    return {
+      'id': id,
+      'keyword': keyword,
+      'createdDate': createdDate.toIso8601String(),
+    };
   }
 
   // Create from Map retrieved from databases
