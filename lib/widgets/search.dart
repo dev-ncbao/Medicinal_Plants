@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:medicinal_plants/local_packages/elevarm_ui-0.12.0/lib/elevarm_ui.dart';
 import 'package:medicinal_plants/widgets/custom_padding.dart';
+import 'package:medicinal_plants/widgets/result.dart';
 
 import '../databases/model/search_history.model.dart';
 import '../databases/model/search_result.model.dart';
@@ -223,93 +225,92 @@ class _Search extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: PagePadding(
-        child: Column(
-          children: [
-            WidgetPadding(
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(top: 8, bottom: 16),
-                child: Text(
-                  'Tìm kiếm',
-                  style: ElevarmFontFamilies.inter(
-                    fontSize: ElevarmFontSizes.xl2,
-                    fontWeight: ElevarmFontWeights.bold,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
-            WidgetPadding(
-              child: ElevarmTextInputField(
-                prefixIconAssetName: HugeIcons.strokeRoundedSearch01,
-                hintText: 'Bách bộ, Bạc hà, Bạch đồng nữ, ...',
-                suffixIconAssetName: _searchInputController.text.isNotEmpty
-                    ? HugeIcons.strokeRoundedCancel01
-                    : null,
-                controller: _searchInputController,
-                onTapSuffix: _searchInputController.text.isNotEmpty
-                    ? () {
-                        setState(() {
-                          _searchInputController.clear();
-                        });
-                      }
-                    : null,
-                errorText: null,
-                enabled: true,
-                onChanged: (value) {
-                  setState(() {});
-                },
-              ),
-            ),
-            SizedBox(height: 12),
-            WidgetPadding(
-              child: SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: ElevarmPrimaryButton.icon(
-                  height: 48,
-                  text: 'Tìm kiếm',
-                  leadingIconAssetName: HugeIcons.strokeRoundedSearch01,
-                  trailingIconAssetName: null,
-                  onPressed: _searchInputController.text.isNotEmpty
+    return KeyboardDismisser(
+      child: Container(
+        child: PagePadding(
+          child: Column(
+            children: [
+              // WidgetPadding(
+              //   child: Container(
+              //     width: double.infinity,
+              //     padding: EdgeInsets.only(top: 8, bottom: 16),
+              //     child: Text(
+              //       'Tìm kiếm',
+              //       style: ElevarmFontFamilies.inter(
+              //         fontSize: ElevarmFontSizes.xl2,
+              //         fontWeight: ElevarmFontWeights.bold,
+              //       ),
+              //       textAlign: TextAlign.left,
+              //     ),
+              //   ),
+              // ),
+              WidgetPadding(
+                child: ElevarmTextInputField(
+                  prefixIconAssetName: HugeIcons.strokeRoundedSearch01,
+                  hintText: 'Bách bộ, Bạc hà, Bạch đồng nữ, ...',
+                  suffixIconAssetName: _searchInputController.text.isNotEmpty
+                      ? HugeIcons.strokeRoundedCancel01
+                      : null,
+                  controller: _searchInputController,
+                  onTapSuffix: _searchInputController.text.isNotEmpty
                       ? () {
-                          () async {
-                            final result = await _searchHistoryService.insert(
-                              SearchHistory(
-                                keyword: _searchInputController.text,
-                                createdDate: DateTime.now(),
-                              ),
-                            );
-
-                            if (result != 0) {
-                              final insertedSearchHistory =
-                                  await _searchHistoryService.search(
-                                    _searchInputController.text,
-                                  );
-
-                              if (insertedSearchHistory.isNotEmpty) {
-                                setState(() {
-                                  _searchHistories.insert(
-                                    0,
-                                    insertedSearchHistory.elementAt(0),
-                                  );
-                                });
-                              }
-                            }
-                          }.call();
+                          setState(() {
+                            _searchInputController.clear();
+                          });
                         }
                       : null,
+                  errorText: null,
+                  enabled: true,
+                  onChanged: (value) {
+                    setState(() {});
+                  },
                 ),
               ),
-            ),
-            _searchResultsWidget(context),
-            _searchHistoriesWidget(context),
-          ],
+              SizedBox(height: 12),
+              WidgetPadding(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevarmPrimaryButton.icon(
+                    height: 48,
+                    text: 'Tìm kiếm',
+                    leadingIconAssetName: HugeIcons.strokeRoundedSearch01,
+                    trailingIconAssetName: null,
+                    onPressed: _searchInputController.text.isNotEmpty
+                        ? () {
+                            () async {
+                              final result = await _searchHistoryService.insert(
+                                SearchHistory(
+                                  keyword: _searchInputController.text,
+                                  createdDate: DateTime.now(),
+                                ),
+                              );
+
+                              if (result != 0) {
+                                final insertedSearchHistory =
+                                    await _searchHistoryService.search(
+                                      _searchInputController.text,
+                                    );
+
+                                if (insertedSearchHistory.isNotEmpty) {
+                                  setState(() {
+                                    _searchHistories.insert(
+                                      0,
+                                      insertedSearchHistory.elementAt(0),
+                                    );
+                                  });
+                                }
+                              }
+                            }.call();
+                          }
+                        : null,
+                  ),
+                ),
+              ),
+              _searchResultsWidget(context),
+              // _searchHistoriesWidget(context),
+            ],
+          ),
         ),
       ),
     );
@@ -540,7 +541,15 @@ class _Search extends State<Search> {
                         physics: BouncingScrollPhysics(),
                         itemBuilder: (BuildContext context, int index) =>
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Result(parentContext: context),
+                                  ),
+                                );
+                              },
                               child: ElevarmOutlinedCard(
                                 child: Row(
                                   spacing: 12,

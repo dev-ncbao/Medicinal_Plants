@@ -6,7 +6,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:medicinal_plants/local_packages/elevarm_ui-0.12.0/lib/elevarm_ui.dart'
-    show ElevarmOutlineButton, ElevarmPrimaryButton;
+    show
+        ElevarmOutlineButton,
+        ElevarmPrimaryButton,
+        showElevarmSnackBar,
+        ElevarmColors;
+import 'package:medicinal_plants/widgets/result.dart';
 
 class Scanner extends StatefulWidget {
   const Scanner({super.key, required BuildContext parentContext});
@@ -18,6 +23,7 @@ class Scanner extends StatefulWidget {
 class _Scanner extends State<Scanner> {
   XFile? _imageOrPhoto;
   final ImagePicker _imagePicker = ImagePicker();
+  AnimationController? _snackBarAnimationController;
 
   @override
   Widget build(BuildContext context) {
@@ -31,23 +37,22 @@ class _Scanner extends State<Scanner> {
                 color: Colors.black,
                 strokeWidth: 2,
                 dashPattern: [8, 10],
-                // 8px dash, 4px gap
               ),
               child: SizedBox.expand(
                 child: _imageOrPhoto == null
-                    ? imagePlaceHolder()
+                    ? _ImagePlaceHolder()
                     : Image.file(File(_imageOrPhoto!.path)),
               ),
             ),
           ),
           SizedBox(height: 20),
-          SizedBox(width: double.infinity, child: SearchButton()),
+          SizedBox(width: double.infinity, child: _searchButton()),
           SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: TakePhotoButton()),
+              Expanded(child: _takePhotoButton()),
               SizedBox(width: 12),
-              Expanded(child: PickFromGalleryButton()),
+              Expanded(child: _pickFromGalleryButton()),
             ],
           ),
         ],
@@ -55,12 +60,41 @@ class _Scanner extends State<Scanner> {
     );
   }
 
-  ElevarmPrimaryButton SearchButton() {
+  ElevarmPrimaryButton _searchButton() {
     return ElevarmPrimaryButton.icon(
       text: 'Tra cứu',
       onPressed: _imageOrPhoto != null
           ? () {
-              print('tra cuu');
+              true
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Result(parentContext: context),
+                      ),
+                    )
+                  : showElevarmSnackBar(
+                      context: context,
+                      iconAssetName: HugeIcons.strokeRoundedAlert01,
+                      alignment: Alignment.topRight,
+                      iconColor: ElevarmColors.danger,
+                      title: 'Không tìm thấy dữ liệu cây thuốc nam',
+                      subtitle:
+                          'Cây thuốc nam không được tìm thấy trong cơ sở dữ liệu hoặc chưa nhận dạng được. '
+                          'Bạn vui lòng điều chỉnh hình ảnh nhé!',
+                      duration: Duration(milliseconds: 100),
+                      dismissDuration: Duration(milliseconds: 100),
+                      reverseDuration: Duration(milliseconds: 100),
+                      onCloseButton: (animationController) {
+                        animationController?.reverse();
+                      },
+                      onAnimationControllerInit: (animationController) {
+                        // animationController.duration = Duration(milliseconds: 500);
+                        _snackBarAnimationController = animationController;
+                        _snackBarAnimationController?.duration =
+                            _snackBarAnimationController?.reverseDuration =
+                                Duration(milliseconds: 400);
+                      },
+                    );
             }
           : null,
       // height: 36,
@@ -69,7 +103,7 @@ class _Scanner extends State<Scanner> {
     );
   }
 
-  ElevarmOutlineButton TakePhotoButton() {
+  ElevarmOutlineButton _takePhotoButton() {
     return ElevarmOutlineButton.icon(
       text: 'Chụp ảnh',
       onPressed: () async {
@@ -77,9 +111,11 @@ class _Scanner extends State<Scanner> {
           source: ImageSource.camera,
         );
 
-        setState(() {
-          _imageOrPhoto;
-        });
+        if (_imageOrPhoto != null) {
+          setState(() {
+            _imageOrPhoto;
+          });
+        }
       },
       // height: 36,
       leadingIconAssetName: HugeIcons.strokeRoundedCamera01,
@@ -87,7 +123,7 @@ class _Scanner extends State<Scanner> {
     );
   }
 
-  ElevarmOutlineButton PickFromGalleryButton() {
+  ElevarmOutlineButton _pickFromGalleryButton() {
     return ElevarmOutlineButton.icon(
       text: 'Thư viện',
       onPressed: () async {
@@ -95,9 +131,11 @@ class _Scanner extends State<Scanner> {
           source: ImageSource.gallery,
         );
 
-        setState(() {
-          _imageOrPhoto;
-        });
+        if (_imageOrPhoto != null) {
+          setState(() {
+            _imageOrPhoto;
+          });
+        }
       },
       // height: 36,
       leadingIconAssetName: HugeIcons.strokeRoundedImage02,
@@ -106,8 +144,8 @@ class _Scanner extends State<Scanner> {
   }
 }
 
-class imagePlaceHolder extends StatelessWidget {
-  const imagePlaceHolder({super.key});
+class _ImagePlaceHolder extends StatelessWidget {
+  const _ImagePlaceHolder({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -11,29 +11,47 @@ class Result extends StatefulWidget {
 class _Result extends State<Result> {
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      thumbVisibility: true,
-      child: Padding(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 20),
-        child: SingleChildScrollView(
-          clipBehavior: Clip.none,
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              Image.asset('assets/images/leaf-1.jpg'),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(top: 24, bottom: 16),
-                child: Text(
-                  'Tên cây',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: ElevarmFontWeights.bold,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Kết quả tìm kiếm',
+          style: ElevarmFontFamilies.inter(
+            fontSize: ElevarmFontSizes.lg,
+            fontWeight: ElevarmFontWeights.semibold,
+          ),
+        ),
+      ),
+      body: Scrollbar(
+        thumbVisibility: true,
+        child: Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 20),
+          child: SingleChildScrollView(
+            clipBehavior: Clip.none,
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Image.asset('assets/images/leaf-1.jpg'),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(top: 24, bottom: 16),
+                  child: Text(
+                    'Tên cây',
+                    style: ElevarmFontFamilies.inter(
+                      fontSize: ElevarmFontSizes.xl2,
+                      fontWeight: ElevarmFontWeights.bold,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
                 ),
-              ),
-              Text(lorem, style: Theme.of(context).textTheme.bodyMedium),
-            ],
+                Text(
+                  lorem,
+                  style: ElevarmFontFamilies.inter(
+                    fontSize: ElevarmFontSizes.sm,
+                    fontWeight: ElevarmFontWeights.regular,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

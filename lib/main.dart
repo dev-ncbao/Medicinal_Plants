@@ -1,6 +1,7 @@
 import 'package:elevarm_ui/elevarm_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:medicinal_plants/widgets/scanner.dart';
 import 'package:medicinal_plants/widgets/search.dart';
 
 import 'databases/app_database.dart';
@@ -26,13 +27,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ElevarmThemeData.light(),
-      home: const MyHomePage(),
+      home: MyHomePage(parentContext: context),
+      // initialRoute: '/',
+      // routes: {
+      //   '/': (context) => MyHomePage(),
+      //   '/search': (context) => Search(context),
+      // },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({super.key, required BuildContext parentContext});
 
   @override
   State<MyHomePage> createState() => _MyHomePage();
@@ -45,20 +51,21 @@ class _MyHomePage extends State<MyHomePage> {
   Widget build(BuildContext context) {
     Widget body = Container();
     if (_currentTabIndex == 0) {
-      // body = Scanner(parentContext: context);
-      // body = Result(parentContext: context);
-      body = Search(parentContext: context);
+      body = Scanner(parentContext: context);
     } else if (_currentTabIndex == 1) {
-      // body = ElevarmAppLoaderOverlay(
-      //   title: 'Đang tải dữ liệu...',
-      //   titleColor: ElevarmColors.neutral,
-      //   progressIndicatorColor: ElevarmColors.primary,
-      // );
-      // body =
+      body = Search(parentContext: context);
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Thư Viện Cây Thuốc Nam')),
+      appBar: AppBar(
+        title: Text(
+          'Thư Viện Cây Thuốc Nam',
+          style: ElevarmFontFamilies.inter(
+            fontSize: ElevarmFontSizes.lg,
+            fontWeight: ElevarmFontWeights.semibold,
+          ),
+        ),
+      ),
       body: body,
       bottomNavigationBar: ElevarmBottomNavigationBar(
         currentIndex: _currentTabIndex,
